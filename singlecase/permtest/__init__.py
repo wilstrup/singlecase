@@ -2,24 +2,19 @@ import numpy as np
 from typing import List, Tuple, Union, Callable    
 import pandas as pd
 
-def permutation_test(data: pd.DataFrame,
-                     dvars: Union[List[str], str],
-                     pvar: str,
+from singlecase.data import Data
+
+def permutation_test(data: Data,
                      statistic: Union[str, Callable] = 'mean',
-                     phases: Tuple[str, str] = ("A", "B"),
                      num_rounds: int = 10000,
                      seed: int = None) -> pd.Series:
     """
     Perform a permutation test between two phases in a single-case data frame.
 
     Args:
-        data (pd.DataFrame): A single-case data frame.
-        dvars (Union[List[str], str]): One or more dependent variables to perform the permutation test on.
-        pvar (str): The name of the phase variable.
+        data (pd.DataFrame): A single-case data set.
         statistic (Union[str, Callable], optional): The statistic to be used in the permutation test
             (either 'mean', 'median', or a custom callable). Default is 'mean'.
-        phases (Tuple[str, str], optional): A tuple of two column names in the data frame
-            indicating the two phases that should be compared. Default is ("A", "B").
         num_rounds (int, optional): The number of iterations for the permutation test. Default is 10000.
         seed (int, optional): Random seed for reproducibility. Default is None.
 
@@ -27,17 +22,10 @@ def permutation_test(data: pd.DataFrame,
         p_values (pd.Series): The calculated p-values in a pd.Series.
     """
 
-    if isinstance(dvars, str):
-        dvars = [dvars]
-
-    if pvar not in data.columns:
-        raise ValueError("pvar must be the name of a column in the data frame")
-
+    pvar = data.pvar
+    phases = data._df[pvar].unique()
     if len(phases) != 2:
-        raise ValueError("phases must be a tuple of two phase names")
-
-    if phases[0] not in data[pvar].values or phases[1] not in data[pvar].values:
-        raise ValueError("phases must be a tuple of two phase names that are present in the data frame")
+        raise ValueError(f"Only two phases are supported. The following phases were found in the phase variable : {pvar}: {phases}")
 
     if isinstance(statistic, str):
         if statistic == 'mean':
@@ -51,12 +39,10 @@ def permutation_test(data: pd.DataFrame,
 
     p_values = {}
 
-    for dvar in dvars:
-        if dvar not in data.columns:
-            raise ValueError("dvar must be the name of a column in the data frame")
-
-        phase1_data = data.loc[data[pvar] == phases[0], dvar].values
-        phase2_data = data.loc[data[pvar] == phases[1], dvar].values
+    df = data._df
+    for dvar in data.dvars:
+        phase1_data = df.loc[df[pvar] == phases[0], dvar].values
+        phase2_data = df.loc[df[pvar] == phases[1], dvar].values
 
         phase1_data = phase1_data[~np.isnan(phase1_data)]
         phase2_data = phase2_data[~np.isnan(phase2_data)]
@@ -78,3 +64,5 @@ def permutation_test(data: pd.DataFrame,
         p_values[dvar] = p_value
 
     return pd.Series(p_values, name="p_value")
+
+

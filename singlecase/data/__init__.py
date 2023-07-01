@@ -1,6 +1,5 @@
+from typing import Union, Dict
 import pandas as pd
-from typing import List, Union, Tuple, Callable
-from singlecase.permtest import permutation_test
 
 
 class Data:
@@ -8,17 +7,22 @@ class Data:
     A class for constructing and storing single-case data.
     """
 
-    def __init__(self, data: pd.DataFrame):
+    def __init__(self, data: Union[pd.DataFrame, Dict]):
         """
         Args:
             data (pd.DataFrame): The data set.
         """
-        self.data = data.copy()
+        if isinstance(data, dict):
+            self._df = pd.DataFrame(data)
+        elif isinstance(data, pd.DataFrame):
+            self._df = data.copy()
+        else:
+            raise ValueError("data must be a pd.DataFrame or a dict")
 
         self._pvar = None
 
         # float columns are assumend to be dependent variables
-        self._dvars = [col for col in self.data.columns if self.data[col].dtype == float]
+        self._dvars = [col for col in self._df.columns if self._df[col].dtype == float]
 
     @property
     def pvar(self):
@@ -32,7 +36,7 @@ class Data:
         """
         Set the phase variable.
         """
-        if pvar not in self.data.columns:
+        if pvar not in self._df.columns:
             raise ValueError("pvar must be the name of a column in the data frame")
         self._pvar = pvar
 
@@ -42,9 +46,4 @@ class Data:
         Get the dependent variables.
         """
         return self._dvars
-
-
-
-    def permutation_test(self, statistic: Union[str, Callable] = 'mean', num_rounds: int = 10000, seed: int = None):
-        return permutation_test(self.data, self.dvars, self.pvar, phases=self.data[self.pvar].unique(), statistic=statistic, num_rounds=num_rounds, seed=seed)
 
