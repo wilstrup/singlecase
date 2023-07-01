@@ -4,7 +4,7 @@ PYTHON ?=python3
 
 venv:
 	$(PYTHON) -m venv venv --clear --prompt sc
-	./venv/bin/pip install wheel
+	./venv/bin/pip install wheel twine
 	./venv/bin/python -m pip install -e .[dev]
 
 clean:
@@ -14,4 +14,4 @@ test: venv
 	./venv/bin/pytest
 
 dist: venv
-	./venv/bin/python setup.py bdist_wheel
+	./venv/bin/python -m build

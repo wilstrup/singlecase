@@ -2,7 +2,6 @@ import numpy as np
 from typing import List, Tuple, Union
 
 import pandas as pd
-from typing import Tuple, Union
 
 def nap(data: pd.DataFrame,
         dvars: Union[List[str], str],
