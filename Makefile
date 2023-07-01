@@ -13,5 +13,8 @@ clean:
 test: venv
 	./venv/bin/pytest
 
-dist: venv
+dist: test
 	./venv/bin/python -m build
+
+upload:
+	./venv/bin/twine upload dist/*
