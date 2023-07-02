@@ -8,7 +8,7 @@ include = ["singlecase", "singlecase.*"]
 
 [project]
 name = "singlecase"
-version = "0.2.0"
+version = "0.2.1"
 description = "A tool for single-case design data managment, statistical analysis and visualization."
 readme = "README.md"
 authors = [{ name = "Casper Wilstrup", email = "casper.wilstrup@abzu.ai" }]
