@@ -7,7 +7,7 @@ def nap(data: Data, decreasing: bool = False) -> pd.Series:
     Calculate the Nonoverlap Pairs (NAP) between two phases in a single-case data frame.
 
     Args:
-        data (singlecase.data.Data): A single-case data set.
+        data (singlecase.Data): A single-case data set.
         decreasing (bool, optional): If you expect data to be lower in the second phase,
             set decreasing=True. Default is decreasing=False.
 
@@ -52,7 +52,7 @@ def pnd(data: Data, decreasing: bool = False) -> pd.Series:
     Calculate the Percent Non-overlapping Data (PND) between two phases in a single-case data frame.
 
     Args:
-        data (singlecase.data.Data): A single-case data set.
+        data (singlecase.Data): A single-case data set.
         decreasing (bool, optional): If you expect data to be lower in the second phase,
             set decreasing=True. Default is decreasing=False.
     Returns:

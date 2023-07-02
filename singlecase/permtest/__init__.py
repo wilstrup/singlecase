@@ -12,7 +12,7 @@ def permutation_test(data: Data,
     Perform a permutation test between two phases in a single-case data frame.
 
     Args:
-        data (pd.DataFrame): A single-case data set.
+        data (singlecase.Data): A single-case data set.
         statistic (Union[str, Callable], optional): The statistic to be used in the permutation test
             (either 'mean', 'median', or a custom callable). Default is 'mean'.
         num_rounds (int, optional): The number of iterations for the permutation test. Default is 10000.
