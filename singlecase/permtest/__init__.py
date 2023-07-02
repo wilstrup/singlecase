@@ -41,11 +41,8 @@ def permutation_test(data: Data,
 
     df = data._df
     for dvar in data.dvars:
-        phase1_data = df.loc[df[pvar] == phases[0], dvar].values
-        phase2_data = df.loc[df[pvar] == phases[1], dvar].values
-
-        phase1_data = phase1_data[~np.isnan(phase1_data)]
-        phase2_data = phase2_data[~np.isnan(phase2_data)]
+        phase1_data = df.loc[df[pvar] == phases[0], dvar].dropna().values
+        phase2_data = df.loc[df[pvar] == phases[1], dvar].dropna().values
 
         observed_diff = statistic(phase2_data) - statistic(phase1_data)
 

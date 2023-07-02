@@ -1,51 +1,33 @@
-import numpy as np
-from typing import List, Tuple, Union
-
 import pandas as pd
 
-def nap(data: pd.DataFrame,
-        dvars: Union[List[str], str],
-        pvar: str,
-        decreasing: bool = False,
-        phases: Tuple[str, str] = ("A", "B")) -> pd.Series:
+from singlecase.data import Data
+
+def nap(data: Data, decreasing: bool = False) -> pd.Series:
     """
     Calculate the Nonoverlap Pairs (NAP) between two phases in a single-case data frame.
 
     Args:
-        data (pd.DataFrame): A single-case data frame.
-        dvar (str): One or more dependent variables to calculate NAP for.
-        pvar (str): The name of the phase variable.
+        data (singlecase.data.Data): A single-case data set.
         decreasing (bool, optional): If you expect data to be lower in the second phase,
             set decreasing=True. Default is decreasing=False.
-        phases (Tuple[str, int], optional): A tuple of two column names in the data frame
-            indicating the two phases that should be compared. Default is ("A", "B").
 
     Returns:
         nap values: The calculated NAP values in a pd.Series.
     """
 
-    if isinstance(dvars, str):
-        dvars = [dvars]
-
-    if pvar not in data.columns:
-        raise ValueError("pvar must be the name of a column in the data frame")
-
+    pvar = data.pvar
+    phases = data._df[pvar].unique()
     if len(phases) != 2:
-        raise ValueError("phases must be a tuple of two phase names")
-    
-    if phases[0] not in data[pvar].values or phases[1] not in data[pvar].values:
-        raise ValueError("phases must be a tuple of two phase names that are present in the data frame")
-    
-    
+        raise ValueError(f"Only two phases are supported. The following phases were found in the phase variable : {pvar}: {phases}")
     
 
     nap_values = {}
-    for dvar in dvars:
-        if dvar not in data.columns:
-            raise ValueError("dvar must be the name of a column in the data frame")
+
+    df = data._df
+    for dvar in data.dvars:
         
-        phase1_data = data.loc[data[pvar] == phases[0], dvar].values
-        phase2_data = data.loc[data[pvar] == phases[1], dvar].values
+        phase1_data = df.loc[df[pvar] == phases[0], dvar].dropna().values
+        phase2_data = df.loc[df[pvar] == phases[1], dvar].dropna().values
 
         non_overlapping_pairs = 0
         total_pairs = 0
@@ -65,46 +47,29 @@ def nap(data: pd.DataFrame,
     return pd.Series(nap_values, name='nap')
 
 
-def pnd(data: pd.DataFrame,
-        dvars: Union[List[str], str],
-        pvar: str,
-        decreasing: bool = False,
-        phases: Tuple[str, str] = ("A", "B")) -> pd.Series:
+def pnd(data: Data, decreasing: bool = False) -> pd.Series:
     """
     Calculate the Percent Non-overlapping Data (PND) between two phases in a single-case data frame.
 
     Args:
-        data (pd.DataFrame): A single-case data frame.
-        dvars (Union[List[str], str]): One or more dependent variables to calculate PND for.
-        pvar (str): The name of the phase variable.
+        data (singlecase.data.Data): A single-case data set.
         decreasing (bool, optional): If you expect data to be lower in the second phase,
             set decreasing=True. Default is decreasing=False.
-        phases (Tuple[str, str], optional): A tuple of two column names in the data frame
-            indicating the two phases that should be compared. Default is ("A", "B").
-
     Returns:
         pnd_values (pd.Series): The calculated PND values in a pd.Series.
     """
 
-    if isinstance(dvars, str):
-        dvars = [dvars]
-
-    if pvar not in data.columns:
-        raise ValueError("pvar must be the name of a column in the data frame")
-
+    pvar = data.pvar
+    phases = data._df[pvar].unique()
     if len(phases) != 2:
-        raise ValueError("phases must be a tuple of two phase names")
-
-    if phases[0] not in data[pvar].values or phases[1] not in data[pvar].values:
-        raise ValueError("phases must be a tuple of two phase names that are present in the data frame")
+        raise ValueError(f"Only two phases are supported. The following phases were found in the phase variable : {pvar}: {phases}")
 
     pnd_values = {}
-    for dvar in dvars:
-        if dvar not in data.columns:
-            raise ValueError("dvar must be the name of a column in the data frame")
 
-        phase1_data = data.loc[data[pvar] == phases[0], dvar].values
-        phase2_data = data.loc[data[pvar] == phases[1], dvar].values
+    df = data._df
+    for dvar in data.dvars:
+        phase1_data = df.loc[df[pvar] == phases[0], dvar].dropna().values
+        phase2_data = df.loc[df[pvar] == phases[1], dvar].dropna().values
 
         extreme_value = max(phase1_data) if decreasing else min(phase1_data)
         non_overlapping_data = sum(value > extreme_value for value in phase2_data) if not decreasing else sum(value < extreme_value for value in phase2_data)
