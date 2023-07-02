@@ -67,6 +67,41 @@ from singlecase.permtest import permutation_test
 p_values = permutation_test(data)
 ```
 
+
+## Complete example
+
+This complete example creates a new `singlecase.Data` from a Python dictionary. The dataset has two dependent variables `dvar1` and `dvar2`. The phase variable is called `phase` and consists of the two phases "A" and "B". Based on this data, the PND and NAP values are calculated and printed.
+
+```python
+import pandas as pd
+from singlecase.data import Data
+from singlecase.effectsize import pnd, nap
+
+# Create a sample data
+data_dict = {
+    'dvar1': [1.0, 2.5, 3.2, 4.6, 2.8, 5.6, 3.7, 4.2, 5.5, 6.2, 7.3, 8.5],
+    'dvar2': [2.5, 3.2, 4.6, 5.1, 4.8, 5.2, 6.7, 5.6, 6.2, 7.8, 8.4, 7.2],
+    'phase': ['A', 'A', 'A', 'A', 'A', 'A', 'B', 'B', 'B', 'B', 'B', 'B']
+}
+
+df = pd.DataFrame(data_dict)
+
+# Instantiate Data object
+data = Data(df)
+
+# Set phase variable
+data.pvar = 'phase'
+
+# Calculate PND
+pnd_values = pnd(data)
+print(f"PND values: \n{pnd_values}")
+
+# Calculate NAP
+nap_values = nap(data)
+print(f"NAP values: \n{nap_values}")
+```
+
+
 ## License
 
 This project is licensed under the BSD 3-clause license - see the [LICENSE](LICENSE) file for details.
