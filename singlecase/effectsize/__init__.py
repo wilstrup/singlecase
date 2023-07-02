@@ -1,8 +1,9 @@
 import pandas as pd
+from typing import List
 
 from singlecase.data import Data
 
-def nap(data: Data, decreasing: bool = False) -> pd.Series:
+def nap(data: Data, decreasing: bool = False, phases: List[str] = None) -> pd.Series:
     """
     Calculate the Nonoverlap Pairs (NAP) between two phases in a single-case data frame.
 
@@ -10,24 +11,31 @@ def nap(data: Data, decreasing: bool = False) -> pd.Series:
         data (singlecase.Data): A single-case data set.
         decreasing (bool, optional): If you expect data to be lower in the second phase,
             set decreasing=True. Default is decreasing=False.
+        phases (List[str], optional): The phases to be compared. Must be provided if there are more than
+            two phases in the data set. Default is None.
 
     Returns:
         nap values: The calculated NAP values in a pd.Series.
     """
 
     pvar = data.pvar
-    phases = data._df[pvar].unique()
-    if len(phases) != 2:
-        raise ValueError(f"Only two phases are supported. The following phases were found in the phase variable : {pvar}: {phases}")
-    
+
+    if phases is not None:
+        if len(phases) != 2:
+            raise ValueError("Only two phases are supported")
+        for phase in phases:
+            if phase not in data.phases:
+                raise ValueError(f"Phase {phase} not found in phase variable {pvar}")
+    else:
+        phases = data.phases
+        if len(phases) != 2:
+            raise ValueError(f"Only two phases are supported. The following phases were found in the phase variable : {pvar}: {phases}")
 
     nap_values = {}
 
-    df = data._df
     for dvar in data.dvars:
-        
-        phase1_data = df.loc[df[pvar] == phases[0], dvar].dropna().values
-        phase2_data = df.loc[df[pvar] == phases[1], dvar].dropna().values
+        phase1_data = data.phase_data(phases[0], dvar).dropna().values
+        phase2_data = data.phase_data(phases[1], dvar).dropna().values
 
         non_overlapping_pairs = 0
         total_pairs = 0
@@ -47,7 +55,7 @@ def nap(data: Data, decreasing: bool = False) -> pd.Series:
     return pd.Series(nap_values, name='nap')
 
 
-def pnd(data: Data, decreasing: bool = False) -> pd.Series:
+def pnd(data: Data, decreasing: bool = False, phases: List[str] = None) -> pd.Series:
     """
     Calculate the Percent Non-overlapping Data (PND) between two phases in a single-case data frame.
 
@@ -55,21 +63,30 @@ def pnd(data: Data, decreasing: bool = False) -> pd.Series:
         data (singlecase.Data): A single-case data set.
         decreasing (bool, optional): If you expect data to be lower in the second phase,
             set decreasing=True. Default is decreasing=False.
+        phases (List[str], optional): The phases to be compared. Must be provided if there are more than
+            two phases in the data set. Default is None.
     Returns:
         pnd_values (pd.Series): The calculated PND values in a pd.Series.
     """
 
     pvar = data.pvar
-    phases = data._df[pvar].unique()
-    if len(phases) != 2:
-        raise ValueError(f"Only two phases are supported. The following phases were found in the phase variable : {pvar}: {phases}")
+
+    if phases is not None:
+        if len(phases) != 2:
+            raise ValueError("Only two phases are supported")
+        for phase in phases:
+            if phase not in data.phases:
+                raise ValueError(f"Phase {phase} not found in phase variable {pvar}")
+    else:
+        phases = data.phases
+        if len(phases) != 2:
+            raise ValueError(f"Only two phases are supported. The following phases were found in the phase variable : {pvar}: {phases}")
 
     pnd_values = {}
 
-    df = data._df
     for dvar in data.dvars:
-        phase1_data = df.loc[df[pvar] == phases[0], dvar].dropna().values
-        phase2_data = df.loc[df[pvar] == phases[1], dvar].dropna().values
+        phase1_data = data.phase_data(phases[0], dvar).dropna().values
+        phase2_data = data.phase_data(phases[1], dvar).dropna().values
 
         extreme_value = max(phase1_data) if decreasing else min(phase1_data)
         non_overlapping_data = sum(value > extreme_value for value in phase2_data) if not decreasing else sum(value < extreme_value for value in phase2_data)

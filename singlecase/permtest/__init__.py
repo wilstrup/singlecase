@@ -6,6 +6,7 @@ from singlecase.data import Data
 
 def permutation_test(data: Data,
                      statistic: Union[str, Callable] = 'mean',
+                     phases: List[str] = None,
                      num_rounds: int = 10000,
                      seed: int = None) -> pd.Series:
     """
@@ -15,6 +16,8 @@ def permutation_test(data: Data,
         data (singlecase.Data): A single-case data set.
         statistic (Union[str, Callable], optional): The statistic to be used in the permutation test
             (either 'mean', 'median', or a custom callable). Default is 'mean'.
+        phases (List[str], optional): The phases to be compared. Must be provided if there are more than
+            two phases in the data set. Default is None.
         num_rounds (int, optional): The number of iterations for the permutation test. Default is 10000.
         seed (int, optional): Random seed for reproducibility. Default is None.
 
@@ -23,9 +26,17 @@ def permutation_test(data: Data,
     """
 
     pvar = data.pvar
-    phases = data._df[pvar].unique()
-    if len(phases) != 2:
-        raise ValueError(f"Only two phases are supported. The following phases were found in the phase variable : {pvar}: {phases}")
+
+    if phases is not None:
+        if len(phases) != 2:
+            raise ValueError("Only two phases are supported")
+        for phase in phases:
+            if phase not in data.phases:
+                raise ValueError(f"Phase {phase} not found in phase variable {pvar}")
+    else:
+        phases = data.phases
+        if len(phases) != 2:
+            raise ValueError(f"Only two phases are supported. The following phases were found in the phase variable : {pvar}: {phases}")
 
     if isinstance(statistic, str):
         if statistic == 'mean':
@@ -39,10 +50,9 @@ def permutation_test(data: Data,
 
     p_values = {}
 
-    df = data._df
     for dvar in data.dvars:
-        phase1_data = df.loc[df[pvar] == phases[0], dvar].dropna().values
-        phase2_data = df.loc[df[pvar] == phases[1], dvar].dropna().values
+        phase1_data = data.phase_data(phases[0], dvar).dropna().values
+        phase2_data = data.phase_data(phases[1], dvar).dropna().values
 
         observed_diff = statistic(phase2_data) - statistic(phase1_data)
 

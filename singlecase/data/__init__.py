@@ -1,4 +1,4 @@
-from typing import Union, Dict
+from typing import Union, Dict, List
 import pandas as pd
 
 
@@ -79,6 +79,16 @@ class Data:
         self._pvar = pvar
 
     @property
+    def phases(self) -> List[str]:
+        """
+        Property that gets the phases in the data set.
+
+        Returns:
+            List[str]: The names of the phases in the data set.
+        """
+        return list(self._df[self.pvar].unique())
+
+    @property
     def dvars(self):
         """
         Property that gets the names of the dependent variable columns.
@@ -90,3 +100,16 @@ class Data:
         """
         return self._dvars
 
+
+    def phase_data(self, phase: str, dvar: str) -> pd.DataFrame:
+        """
+        Get the data for a specific phase and dependent variable.
+
+        Args:
+            phase (str): The name of the phase.
+            dvar (str): The name of the dependent variable.
+
+        Returns:
+            pd.DataFrame: The data for the specified phase and dependent variable.
+        """
+        return self._df.loc[self._df[self.pvar] == phase, dvar]
