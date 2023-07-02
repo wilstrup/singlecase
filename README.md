@@ -70,12 +70,13 @@ p_values = permutation_test(data)
 
 ## Complete example
 
-This complete example creates a new `singlecase.Data` from a Python dictionary. The dataset has two dependent variables `dvar1` and `dvar2`. The phase variable is called `phase` and consists of the two phases "A" and "B". Based on this data, the PND and NAP values are calculated and printed.
+This complete example creates a new `singlecase.Data` from a Python dictionary. The dataset has two dependent variables `dvar1` and `dvar2`. The phase variable is called `phase` and consists of the two phases "A" and "B". Based on this data, the PND and NAP values are calculated and printed. The probability that the two phases have the same mean is then calculated using permutation tests and printed.
 
 ```python
 import pandas as pd
 from singlecase.data import Data
 from singlecase.effectsize import pnd, nap
+from singlecase.permtest import permutation_test
 
 # Create a sample data
 data_dict = {
@@ -94,11 +95,15 @@ data.pvar = 'phase'
 
 # Calculate PND
 pnd_values = pnd(data)
-print(f"PND values: \n{pnd_values}")
+print(f"PND values:\n{pnd_values}\n")
 
 # Calculate NAP
 nap_values = nap(data)
-print(f"NAP values: \n{nap_values}")
+print(f"NAP values:\n{nap_values}\n")
+
+# Calculate the p-value of the mean of the two phases being the same
+perm_p = permutation_test(data)
+print(f"Probability that A and B phases have same mean:\n{perm_p}\n")
 ```
 
 
