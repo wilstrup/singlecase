@@ -1,6 +1,6 @@
 # Single Case Research Package
 
-The Single Case Research package is a Python library designed to assist in conducting single-case research studies. It provides functions to calculate effect sizes and perform permutation tests between two phases in a single-case data frame.
+The Single Case Research package is a Python library designed to assist in conducting single-case research studies. The package provides tools to analyze single-case data sets. It is designed for simplicity and ease of use, with a range of methods to calculate various statistical measures for single-case data sets. The package is perfect for analysts and researchers dealing with single-case designs, providing a framework to load, manage, and manipulate such data, along with robust statistical functions to interpret the data.
 
 More functionality will be added as the package is further developed
 
@@ -12,83 +12,59 @@ You can install the package using pip:
 pip install singlecase
 ```
 
-## Functionality
-
-The package currently includes the following functions:
-
-### Effect Size Calculation
-
-#### `nap(data: pd.DataFrame, dvars: Union[List[str], str], pvar: str, decreasing: bool = False, phases: Tuple[str, str] = ("A", "B")) -> pd.Series`
-
-Calculate the Nonoverlap Pairs (NAP) between two phases in a single-case data frame.
-
-- `data`: A single-case data frame.
-- `dvars`: One or more dependent variables to calculate NAP for.
-- `pvar`: The name of the phase variable.
-- `decreasing`: If you expect data to be lower in the second phase, set `decreasing=True`. Default is `decreasing=False`.
-- `phases`: A tuple of two column names in the data frame indicating the two phases that should be compared. Default is `("A", "B")`.
-
-Returns the calculated NAP values in a Pandas Series.
-
-#### `pnd(data: pd.DataFrame, dvars: Union[List[str], str], pvar: str, decreasing: bool = False, phases: Tuple[str, str] = ("A", "B")) -> pd.Series`
-
-Calculate the Percent Non-overlapping Data (PND) between two phases in a single-case data frame.
-
-- `data`: A single-case data frame.
-- `dvars`: One or more dependent variables to calculate PND for.
-- `pvar`: The name of the phase variable.
-- `decreasing`: If you expect data to be lower in the second phase, set `decreasing=True`. Default is `decreasing=False`.
-- `phases`: A tuple of two column names in the data frame indicating the two phases that should be compared. Default is `("A", "B")`.
-
-Returns the calculated PND values in a Pandas Series.
-
-### Permutation Test
-
-#### `permutation_test(data: pd.DataFrame, dvars: Union[List[str], str], pvar: str, statistic: Union[str, Callable] = 'mean', phases: Tuple[str, str] = ("A", "B"), num_rounds: int = 10000, seed: int = None) -> pd.Series`
-
-Perform a permutation test between two phases in a single-case data frame.
-
-- `data`: A single-case data frame.
-- `dvars`: One or more dependent variables to perform the permutation test on.
-- `pvar`: The name of the phase variable.
-- `statistic`: The statistic to be used in the permutation test (either 'mean', 'median', or a custom callable). Default is `'mean'`.
-- `phases`: A tuple of two column names in the data frame indicating the two phases that should be compared. Default is `("A", "B")`.
-- `num_rounds`: The number of iterations for the permutation test. Default is `10000`.
-- `seed`: Random seed for reproducibility. Default is `None`.
-
-Returns the calculated p-values in a Pandas Series.
 
 ## Usage
 
-Here's a basic example demonstrating how to use the functions in the Single Case Research package:
+To use `singlecase`, first import the package into your Python environment:
 
 ```python
-import pandas as pd
-from singlecase.effectsize import nap, pnd
+from singlecase.data import Data
+```
+
+Then, create a `Data` object with either a pandas DataFrame or a dictionary:
+
+```python
+df = pd.DataFrame({...})  # Or load your data from a CSV, database, etc.
+data = Data(df)
+```
+
+Now you're ready to perform single-case data analysis!
+
+## Core Features
+
+### Data Class
+
+The `Data` class provides an object-oriented interface to represent your single-case data. It assumes any variable with datatype of float as a dependent variable. The dependent and phase variables can be accessed and modified using properties. For example:
+
+```python
+data.pvar = 'column_name'  # Set the phase variable
+```
+
+### Nonoverlap Pairs (NAP)
+
+The `nap` function computes the Nonoverlap Pairs between two phases in a single-case data frame. It returns a pandas Series containing the NAP values for each dependent variable in the data set.
+
+```python
+from singlecase.effectsize import nap
+nap_values = nap(data)
+```
+
+### Percent Non-overlapping Data (PND)
+
+The `pnd` function computes the Percent Non-overlapping Data between two phases in a single-case data frame. It returns a pandas Series containing the PND values for each dependent variable in the data set.
+
+```python
+from singlecase.effectsize import pnd
+pnd_values = pnd(data)
+```
+
+### Permutation Test
+
+The `permutation_test` function performs a permutation test between two phases in a single-case data frame. It returns a pandas Series containing the p-values for each dependent variable in the data set.
+
+```python
 from singlecase.permtest import permutation_test
-
-# Load your single-case data into a Pandas DataFrame
-
-
-
-# Calculate NAP
-nap_values = nap(data, dvars=['dependent_var1', 'dependent_var2'], pvar='phase_var')
-
-# Calculate PND
-pnd_values = pnd(data, dvars='dependent_var1', pvar='phase_var')
-
-# Perform permutation test
-p_values = permutation_test(data, dvars='dependent_var1', pvar='phase_var')
-
-# Print the results
-print("NAP Values:")
-print(nap_values)
-
-print("PND Values:")
-print(pnd_values)
-
-print("P-Values:")
-print(p_values)
+p_values = permutation_test(data)
 ```
 
 ## License
