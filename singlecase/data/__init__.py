@@ -16,12 +16,16 @@ class Data:
     Args:
         data (Union[pd.DataFrame, Dict]): The data set. Must be either a pandas DataFrame 
         or a dictionary.
+        pvar (str, optional): The name of the phase variable column in the data set. If the
+        data contains a column named "phase", this will be used as the phase variable by default.
+        index (str, optional): The name of the variable in the dataset to use as the index, i.e.
+        the labels of each test session. If not provided, the sessions will be numbered starting at 0.
     
     Raises:
         ValueError: If the provided data is not a pandas DataFrame or a dictionary.
     """
 
-    def __init__(self, data: Union[pd.DataFrame, Dict]):
+    def __init__(self, data: Union[pd.DataFrame, Dict], pvar: str=None, index: str = None):
         """
         Constructs and initializes the Data object.
         """
@@ -33,7 +37,18 @@ class Data:
         else:
             raise ValueError("data must be a pd.DataFrame or a dict")
 
-        self._pvar = None
+
+        if index is not None:
+            self._df.set_index(index, inplace=True)
+
+        if pvar is None:
+            if "phase" in self._df.columns:
+                pvar = "phase"
+        else:
+            if pvar not in self._df.columns:
+                raise ValueError("pvar must be the name of a column in the data frame")
+
+        self._pvar = pvar
 
         # float columns are assumend to be dependent variables
         self._dvars = [col for col in self._df.columns if self._df[col].dtype == float]
