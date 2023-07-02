@@ -14,7 +14,11 @@ test: venv
 	./venv/bin/pytest
 
 dist: test
+	rm -rf dist
 	./venv/bin/python -m build
+
+upload-test:
+	./venv/bin/twine upload --repository testpypi dist/*
 
 upload:
 	./venv/bin/twine upload dist/*
