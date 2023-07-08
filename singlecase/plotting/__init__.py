@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from singlecase.data import Data
 
-def line_chart(data: Data, dvars: List[str] = None, num_per_row: int = 1, phases: List[str] = None, figure_size: Tuple[int, int] = (10, 8)):
+def line_chart(data: Data, dvars: List[str] = None, num_per_row: int = 1, phases: List[str] = None, figure_size: Tuple[int, int] = (10, 8), title: str = None):
     """
     Plot the selected dependent variables on a line chart, with separate colors for each phase.
 
@@ -13,6 +13,7 @@ def line_chart(data: Data, dvars: List[str] = None, num_per_row: int = 1, phases
         num_per_row (int): Number of plots per row. Default is 1.
         phases (List[str]): The phases to plot. If None, all phases are plotted.
         figure_size (Tuple[int, int]): The size of the figure. Default is (10, 8).
+        title (str): The title of the plot. Default is None.
     """
 
     if dvars is None:
@@ -25,6 +26,9 @@ def line_chart(data: Data, dvars: List[str] = None, num_per_row: int = 1, phases
 
     rows = (len(dvars) - 1) // num_per_row + 1
     fig = plt.figure(figsize=figure_size)
+
+    if title is not None:
+        fig.suptitle(title)
 
     for idx, dvar in enumerate(dvars):
         ax = fig.add_subplot(rows, num_per_row, idx + 1)
@@ -44,8 +48,10 @@ def line_chart(data: Data, dvars: List[str] = None, num_per_row: int = 1, phases
 
         ax.set_ylim(min_y, max_y)
 
-        ax.set_xlabel('Session')
-        ax.set_ylabel(dvar)
+        if data.dvar_units[dvar] != "":
+            ax.set_ylabel(data.dvar_units[dvar])
+
+        ax.set_xlabel(data.index)
         ax.set_title(f'{dvar} over sessions')
         
         # Only add legend if there is more than one phase

@@ -25,7 +25,7 @@ class Data:
         ValueError: If the provided data is not a pandas DataFrame or a dictionary.
     """
 
-    def __init__(self, data: Union[pd.DataFrame, Dict], pvar: str=None, index: str = None):
+    def __init__(self, data: Union[pd.DataFrame, Dict], pvar: str=None, index: str = None, units: Union[Dict[str, str], str] = None):
         """
         Constructs and initializes the Data object.
         """
@@ -56,6 +56,26 @@ class Data:
 
         # float columns are assumend to be dependent variables
         self._dvars = [col for col in self._df.columns if self._df[col].dtype == float]
+
+
+        if units is None:
+            units = {dvar: "" for dvar in self._dvars}
+        elif isinstance(units, str):
+            units = {dvar: units for dvar in self._dvars}
+        elif not isinstance(units, dict):
+            raise ValueError("units of dependent variables must be a dict or a str")
+
+        self._dvar_units = units
+
+    @property
+    def index(self) -> str:
+        """
+        Property that gets the name of the index variable of the Data object.
+
+        Returns:
+            str: The name of the index column.
+        """
+        return self._df.index.name
 
     @property
     def pvar(self):
@@ -92,6 +112,16 @@ class Data:
         """
         return list(self._df[self.pvar].unique())
 
+    @property
+    def dvar_units(self) -> Dict[str, str]:
+        """
+        Property that gets the units of the dependent variables.
+
+        Returns:
+            Dict[str, str]: A dictionary mapping the dependent variable names to their units.
+        """
+        return self._dvar_units
+    
     @property
     def dvars(self):
         """
