@@ -9,7 +9,7 @@ include = ["singlecase", "singlecase.*"]
 [project]
 name = "singlecase"
 version = "0.2.1"
-description = "A tool for single-case design data managment, statistical analysis and visualization."
+description = "A tool for single-case design data management, statistical analysis and visualization."
 readme = "README.md"
 authors = [{ name = "Casper Wilstrup", email = "casper.wilstrup@abzu.ai" }]
 license = { file = "LICENSE" }
@@ -19,6 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Healthcare Industry",
     "Intended Audience :: Education",
@@ -32,6 +33,7 @@ dependencies = [
     "numpy",
     "pandas",
     "scipy",
+    "matplotlib",
 ]
 requires-python = ">=3.8"
 
