@@ -44,6 +44,10 @@ class Data:
         if pvar is None:
             if "phase" in self._df.columns:
                 pvar = "phase"
+            else:
+                self._df["phase"] = "default"
+                pvar = "phase"
+            
         else:
             if pvar not in self._df.columns:
                 raise ValueError("pvar must be the name of a column in the data frame")
