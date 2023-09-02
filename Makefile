@@ -2,7 +2,7 @@ PYTHON ?=python3
 
 .PHONY: clean test
 
-venv:
+venv: pyproject.toml setup.py
 	$(PYTHON) -m venv venv --clear --prompt sc
 	./venv/bin/pip install wheel twine
 	./venv/bin/python -m pip install -e .[dev]
