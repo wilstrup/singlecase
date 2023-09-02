@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from singlecase.data import Data
 
-def line_chart(data: Data, dvars: List[str] = None, num_per_row: int = 1, phases: List[str] = None, figure_size: Tuple[int, int] = (10, 8), title: str = None):
+def line_chart(data: Data, dvars: List[str] = None, num_per_row: int = 1, phases: List[str] = None, figure_size: Tuple[int, int] = (10, 8), y_range: Tuple[float, float] = None, title: str = None):
     """
     Plot the selected dependent variables on a line chart, with separate colors for each phase.
 
@@ -30,6 +30,17 @@ def line_chart(data: Data, dvars: List[str] = None, num_per_row: int = 1, phases
     if title is not None:
         fig.suptitle(title)
 
+    # Get the min_y and max_y across all dvars and phases
+    if y_range is None:
+        min_y = min(data.phase_data(phase, dvar).min() for phase in phases for dvar in dvars)
+        max_y = max(data.phase_data(phase, dvar).max() for phase in phases for dvar in dvars)
+    else:
+        min_y, max_y = y_range
+
+    y_diff = max_y - min_y
+    min_y -= y_diff * 0.05
+    max_y += y_diff * 0.05
+
     for idx, dvar in enumerate(dvars):
         ax = fig.add_subplot(rows, num_per_row, idx + 1)
 
@@ -37,14 +48,6 @@ def line_chart(data: Data, dvars: List[str] = None, num_per_row: int = 1, phases
             phase_data = data.phase_data(phase, dvar)
             ax.plot(phase_data, label=f"Phase: {phase}", color=phase_colors(i), zorder=3)
             ax.scatter(phase_data.index, phase_data, color=phase_colors(i), zorder=3) 
-
-        # Get the min and max value for the current dvar
-        min_y = min(data.phase_data(phase, dvar).min() for phase in phases)
-        max_y = max(data.phase_data(phase, dvar).max() for phase in phases) 
-
-        y_range = max_y - min_y
-        min_y -= y_range * 0.05
-        max_y += y_range * 0.05
 
         ax.set_ylim(min_y, max_y)
 
